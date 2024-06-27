@@ -1,62 +1,53 @@
-import { useState } from 'react';
-import './App.css';
+import { useEffect, useState } from "react";
+import "./App.css";
 
 function App() {
-  const [todos, setTodos] = useState([]);
-  const [newTodo, setNewTodo] = useState('');
- 
+  const [products, setProducts] = useState<any[]>([]);
 
-  const handleInputChange = (event) => {
-    setNewTodo(event.target.value);
-  };
+  useEffect(() => {
+    fetch(`http://localhost:3000/products`)
+      .then((res) => res.json())
+      .then((data) => setProducts(data));
+  }, []);
 
-  const addTodo = () => {
-    if (newTodo.trim() !== '') {
-      setTodos([...todos, { text: newTodo, completed: false }]);
-      setNewTodo('');
+  const onRemove = (id: number) => {
+    const confirm = window.confirm("Bạn có chắc muốn xóa?");
+    if (confirm) {
+      fetch(`http://localhost:3000/products/${id}`, {
+        method: "DELETE",
+      })
+        .then((res) => res.json())
+        .then(
+          () => (
+            alert("xoa thanh cong"),
+            setProducts(products.filter((product) => product.id !== id))
+          )
+        );
     }
   };
-
-  const toggleComplete = (index) => {
-    const newTodos = todos.map((todo, i) => {
-      if (i === index) {
-        return { ...todo, completed: !todo.completed };
-      }
-      return todo;
-    });
-    setTodos(newTodos);
-  };
-
-  const removeTodo = (index) => {
-    const newTodos = todos.filter((todo, i) => i !== index);
-    setTodos(newTodos);
-  };
+  const onAdd = (product:any)=>{
+    fetch(`http://localhost:3000/products`,{
+      method:"POST",
+      headers:{
+        "Content-Type":"aplication/json"  
+      },
+      body:JSON.stringify(product)
+    }).then(res=>res.json()).then((newProduct)=>(setProducts([...products,newProduct])))
+  }
 
   return (
-    <div className="App">
-      <h1>Todo List</h1>
-      <input 
-        type="text" 
-        value={newTodo} 
-        onChange={handleInputChange} 
-        placeholder="Add a new todo"
-      />
-      <button onClick={addTodo}>Add</button>
-      <ul>
-        {todos.map((todo, index) => (
-          <li key={index} style={{ textDecoration: todo.completed ? 'line-through' : 'none' }}>
-            <input 
-              type="checkbox" 
-              checked={todo.completed} 
-              onChange={() => toggleComplete(index)} 
-            />
-            {todo.text}
-            {todo.completed && (
-              <button onClick={() => removeTodo(index)}>X</button>
-            )}
-          </li>
-        ))}
-      </ul>
+    <div className="container">
+      {products.map((product) => (
+        <div className="" key={product.id}>
+          <h1>{product.name}</h1>
+          <button
+            className="btn btn-danger"
+            onClick={() => onRemove(product.id)}
+          >
+            Xóa
+          </button>
+        </div>
+      ))}
     </div>
   );
 }

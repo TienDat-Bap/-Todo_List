@@ -1,5 +1,12 @@
 {
-    "products":[
-        
-    ]
+  "products": [
+    {
+      "id": 1,
+      "name": "san pham 1"
+    },
+    {
+      "id": 2,
+      "name": "san pham 2"
+    }
+  ]
 }
